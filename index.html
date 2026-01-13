@@ -1,104 +1,20 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gym Tracker</title>
-
-<style>
-body {
-  background:#111;
-  color:#fff;
-  font-family:system-ui;
-  margin:0;
-  padding:16px;
-}
-.app {
-  max-width:420px;
-  margin:auto;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-input, select, button {
-  padding:14px;
-  font-size:16px;
-  border-radius:8px;
-  border:none;
-}
-input, select {
-  background:#222;
-  color:#fff;
-}
-button {
-  background:#4caf50;
-  font-weight:bold;
-}
-</style>
-</head>
-
-<body>
-<div class="app">
-  <h2>🏋️ Gym Tracker</h2>
-
-  <select id="day">
-    <option value="1">День 1 — Спина / Бицепс</option>
-    <option value="2">День 2 — Грудь / Трицепс</option>
-    <option value="3">День 3 — Ноги / Плечи</option>
-  </select>
-
-  <input id="exercise" placeholder="Упражнение">
-  <input id="weight" type="number" placeholder="Вес (кг)">
-  <input id="reps" type="number" placeholder="Повторы">
-
-  <button id="saveBtn">Сохранить подход</button>
-
-  <div id="result"></div>
-</div>
-
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbypJ_su_YUUt4rd_pkOajtbpwCeD5XRdRj3YTn_3zt4Pd8v-TgJT5eSXrAYRX7t66V7Kw/exec";
-
-const day = document.getElementById("day");
-const ex = document.getElementById("exercise");
-const w = document.getElementById("weight");
-const r = document.getElementById("reps");
-const res = document.getElementById("result");
-const btn = document.getElementById("saveBtn");
-
-ex.addEventListener("blur", async () => {
-  if (!ex.value) return;
-
-  try {
-    const resp = await fetch(
-      `${API_URL}?exercise=${encodeURIComponent(ex.value)}`
-    );
-    const data = await resp.json();
-    if (data) {
-      w.value = data.weight;
-      r.value = data.reps;
-    }
-  } catch (e) {
-    console.error(e);
-  }
-});
-
 btn.addEventListener("click", async () => {
   if (!ex.value || !w.value || !r.value) {
     alert("Заполни все поля");
     return;
   }
 
+  const params = new URLSearchParams({
+    day: day.value,
+    exercise: ex.value,
+    weight: w.value,
+    reps: r.value
+  });
+
   try {
     const resp = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        day: +day.value,
-        exercise: ex.value,
-        weight: +w.value,
-        reps: +r.value
-      })
+      body: params
     });
 
     const data = await resp.json();
@@ -111,4 +27,3 @@ btn.addEventListener("click", async () => {
     alert("Ошибка отправки");
   }
 });
-</script>
